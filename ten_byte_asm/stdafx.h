@@ -8,7 +8,7 @@
 #include "targetver.h"
 #include "uDynamic.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <tchar.h>
 #include <cstdlib>
 #include <iostream>

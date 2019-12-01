@@ -4,11 +4,11 @@
 #include "stdafx.h"
 
 
-void sum(uDynamic& a, uDynamic& b, uDynamic *res);
-void minus(uDynamic& a, uDynamic& b, uDynamic* res);
-void neg(uDynamic& a);
-void inc(uDynamic& a);
-void inv(uDynamic& a);
+uDynamic sum(uDynamic a, uDynamic b);
+uDynamic minus(uDynamic a, uDynamic b);
+uDynamic neg(uDynamic a);
+uDynamic inc(uDynamic a);
+uDynamic inv(uDynamic a);
 
 #define byteSize 20 
 int main()
@@ -17,10 +17,11 @@ int main()
 	uDynamic s1(byteSize), s2(byteSize);
 	for (int i = 0; i < s1.size; i++)
 	{
-		s1.data[i] = rand() +0x20;
+		s1.data[i] = rand() + 0x20;
 		s2.data[i] = rand();// +8;
 	}
-	//s1.data[0] = 2;
+	s1.data[0] = 1;
+
 	//s2.data[0] = 1;
 	for (int i = s1.size - 1; i >= 0; i--)
 		printf("%02X ", s1.data[i]);
@@ -28,30 +29,34 @@ int main()
 	for (int i = s1.size - 1; i >= 0; i--)
 		printf("%02X ", s2.data[i]);
 	putchar('\n');
-	uDynamic *res=new uDynamic(0);
+	//uDynamic res(0);// = new uDynamic(0);
 	/*inc(s1);
 	for (int i = s1.size - 1; i >= 0; i--)
 		printf("%02X ", s1.data[i]);
 	putchar('\n');*/
-	minus(s1, s2, res);	
+	//minus(s1, s2, res);
+	
+	uDynamic res(0);
+	res = minus(s1,s2);
+
 	for (int i = s1.size-1; i >= 0; i--)
-		printf("%02X ",res->data[i]);
+		printf("%02X ",res.data[i]);
 	putchar('\n');
-	system("pause");
-	delete res;
+	//system("pause");
+	//delete res;
     return 0;
 }
 
-void sum(uDynamic& a, uDynamic& b, uDynamic *res)
+uDynamic sum(uDynamic a, uDynamic b)
 {
 	unsigned __int8 it4,it1;
 	int len = (a.size > b.size ? a.size : b.size);
 	void* ap=a.data, *rp ,*a2p=b.data;
 	void *bp = b.data;
-
-	res->size = len;
-	res->data = (unsigned __int8*)calloc(8, len);
-	rp = res->data;
+	uDynamic res(len);
+	
+	res.data = (unsigned __int8*)calloc(8, len);
+	rp = res.data;
 	_asm {
 		movzx ax,len
 		mov bl,4
@@ -103,15 +108,16 @@ void sum(uDynamic& a, uDynamic& b, uDynamic *res)
 		popf
 	}
 	
+	return res;
 }
 
-void minus(uDynamic& a, uDynamic& b, uDynamic* res)
+uDynamic minus(uDynamic a, uDynamic b)
 {
-	neg(b);
-	sum(a, b, res);
+	b=neg(b);
+	return sum(a, b);
 }
 
-void neg(uDynamic& a)
+uDynamic neg(uDynamic a)
 {
 	unsigned __int8 it4, it1;
 	int len = a.size;
@@ -181,9 +187,10 @@ void neg(uDynamic& a)
 		//inc end
 	}
 
+	return a;
 }
 
-void inc(uDynamic& a)
+uDynamic inc(uDynamic a)
 {
 	unsigned __int8 it4, it1;
 	int len = a.size;
@@ -223,9 +230,10 @@ void inc(uDynamic& a)
 		esum1 :
 		//inc end
 	}
+	return a;
 }
 
-void inv(uDynamic& a)
+uDynamic inv(uDynamic a)
 {
 	unsigned __int8 it4, it1;
 	int len = a.size;
@@ -262,4 +270,5 @@ void inv(uDynamic& a)
 		einv1 :
 		//inv end
 	}
+	return a;
 }
