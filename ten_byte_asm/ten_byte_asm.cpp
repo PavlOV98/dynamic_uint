@@ -6,6 +6,8 @@
 
 uDynamic sum(uDynamic a, uDynamic b);
 uDynamic minus(uDynamic a, uDynamic b);
+uDynamic and (uDynamic a, uDynamic b);
+uDynamic or (uDynamic a, uDynamic b);
 uDynamic neg(uDynamic a);
 uDynamic inc(uDynamic a);
 uDynamic inv(uDynamic a);
@@ -37,7 +39,7 @@ int main()
 	//minus(s1, s2, res);
 	
 	uDynamic res(0);
-	res = minus(s1,s2);
+	res = and(s1,s2);
 
 	for (int i = s1.size-1; i >= 0; i--)
 		printf("%02X ",res.data[i]);
@@ -108,6 +110,130 @@ uDynamic sum(uDynamic a, uDynamic b)
 		popf
 	}
 	
+	return res;
+}
+
+uDynamic and(uDynamic a, uDynamic b)
+{
+	unsigned __int8 it4, it1;
+	int len = (a.size > b.size ? a.size : b.size);
+	void* ap = a.data, * rp, * a2p = b.data;
+	void* bp = b.data;
+	uDynamic res(len);
+
+	res.data = (unsigned __int8*)calloc(8, len);
+	rp = res.data;
+	_asm {
+		movzx ax, len
+		mov bl, 4
+		div bl
+		mov it4, al
+		mov it1, ah
+
+		mov bl, ah
+		movzx ecx, al
+		cmp ecx, 0
+		JZ esum4
+		pushf
+		sum4 :
+		mov ebx, ap
+			mov eax, DWORD PTR[ebx];
+		mov ebx, a2p
+			mov ebx, DWORD PTR[ebx]
+
+			and eax, ebx
+
+			mov ebx, rp
+			mov DWORD PTR[ebx], eax
+
+			add ap, 4
+			add a2p, 4
+			add rp, 4
+			LOOP sum4
+			esum4 :
+
+		movzx ecx, it1
+			cmp ecx, 0
+			JZ esum1
+			sum1 :
+		mov ebx, ap
+			mov al, BYTE PTR[ebx];
+		mov ebx, a2p
+			mov bl, BYTE PTR[ebx]
+			and al, bl
+			mov ebx, rp
+			mov BYTE PTR[ebx], al
+			add ap, 1
+			add a2p, 1
+			add rp, 1
+			LOOP sum1
+			esum1 :
+
+		popf
+	}
+
+	return res;
+}
+
+uDynamic or (uDynamic a, uDynamic b)
+{
+	unsigned __int8 it4, it1;
+	int len = (a.size > b.size ? a.size : b.size);
+	void* ap = a.data, * rp, * a2p = b.data;
+	void* bp = b.data;
+	uDynamic res(len);
+
+	res.data = (unsigned __int8*)calloc(8, len);
+	rp = res.data;
+	_asm {
+		movzx ax, len
+		mov bl, 4
+		div bl
+		mov it4, al
+		mov it1, ah
+
+		mov bl, ah
+		movzx ecx, al
+		cmp ecx, 0
+		JZ esum4
+		pushf
+		sum4 :
+		mov ebx, ap
+			mov eax, DWORD PTR[ebx];
+		mov ebx, a2p
+			mov ebx, DWORD PTR[ebx]
+
+			or eax, ebx
+
+			mov ebx, rp
+			mov DWORD PTR[ebx], eax
+
+			add ap, 4
+			add a2p, 4
+			add rp, 4
+			LOOP sum4
+			esum4 :
+
+		movzx ecx, it1
+			cmp ecx, 0
+			JZ esum1
+			sum1 :
+		mov ebx, ap
+			mov al, BYTE PTR[ebx];
+		mov ebx, a2p
+			mov bl, BYTE PTR[ebx]
+			or al, bl
+			mov ebx, rp
+			mov BYTE PTR[ebx], al
+			add ap, 1
+			add a2p, 1
+			add rp, 1
+			LOOP sum1
+			esum1 :
+
+		popf
+	}
+
 	return res;
 }
 
